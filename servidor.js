@@ -1,11 +1,14 @@
 //import
-const { request } = require("express");
+// const { request } = require("express");
 const express = require("express");
 // const productos = require("./listaProductos");
 
 const app = express();
 const routerProductos = express.Router();
 
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.static(__dirname + "public"));
 app.use("/api", routerProductos);
 
 // routerProductos.use(express.json());
@@ -39,6 +42,10 @@ const productos = listaProductos;
 // const productos = [];
 
 //rutas
+//index
+app.get("/", (req, res) => {
+  res.sendFile(__dirname + "/public/index.html");
+});
 //todos los productos
 routerProductos.get("/productos", (req, res) => {
   if (productos.length === 0) {
@@ -60,11 +67,17 @@ routerProductos.get("/productos/:id", (req, res) => {
     res.send(producto);
   }
 });
+// ingreso de producto por id (post prod id)
+routerProductos.post("/productos/", (req, res) => {
+  const item = req.body;
+  const ids = productos.map((producto) => producto.id);
+  const maxId = Math.max(...ids);
+  const newProd = {
+    id: maxId + 1,
+  };
 
-// //post prod id
-// routerProductos.post("/productos/:id", (req, res) => {
-//   res.send(productoRandom);
-// });
+  res.send(item);
+});
 
 // //put prod id
 // routerProductos.put("/productos/:id", (req, res) => {
