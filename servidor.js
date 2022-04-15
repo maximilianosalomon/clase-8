@@ -1,7 +1,5 @@
 //import
-// const { request } = require("express");
 const express = require("express");
-// const productos = require("./listaProductos");
 
 const app = express();
 const routerProductos = express.Router();
@@ -11,10 +9,11 @@ app.use(express.json());
 app.use(express.static(__dirname + "public"));
 app.use("/api", routerProductos);
 
-// routerProductos.use(express.json());
+routerProductos.use(express.json());
 
 // Productos
-const listaProductos = [
+// const productos = [];
+let productos = [
   {
     title: "Escuadra",
     price: 123.45,
@@ -38,9 +37,6 @@ const listaProductos = [
   },
 ];
 
-const productos = listaProductos;
-// const productos = [];
-
 //rutas
 //index
 app.get("/", (req, res) => {
@@ -58,7 +54,6 @@ routerProductos.get("/productos", (req, res) => {
 //productos por id
 routerProductos.get("/productos/:id", (req, res) => {
   const id = parseInt(req.params.id);
-  console.log(id);
   const producto = productos.find((producto) => producto.id === id);
   if (producto === undefined) {
     // res.send("Error no hay productos!");
@@ -67,27 +62,38 @@ routerProductos.get("/productos/:id", (req, res) => {
     res.send(producto);
   }
 });
-// ingreso de producto por id (post prod id)
-routerProductos.post("/productos/", (req, res) => {
+
+// ingreso de producto
+routerProductos.post("/productos", (req, res) => {
   const item = req.body;
   const ids = productos.map((producto) => producto.id);
   const maxId = Math.max(...ids);
-  const newProd = {
+  let newProd = {
+    title: item.title,
+    price: item.price,
+    thumbnail: item.thumbnail,
     id: maxId + 1,
   };
-
-  res.send(item);
+  productos = [...productos, newProd];
+  res.redirect("/api/productos");
 });
 
-// //put prod id
-// routerProductos.put("/productos/:id", (req, res) => {
-//   res.send(productoRandom);
-// });
+//put prod id
+routerProductos.put("/productos/:id", (req, res) => {
+  const id = parseInt(req.params.id);
+  const item = req.body;
+  const producto = productos.find((producto) => producto.id === id);
+  producto.title = item.title;
+  console.log(producto);
+  res.send("es un put!");
+});
 
-// //delete prod id
-// routerProductos.delete("/productos/:id", (req, res) => {
-//   res.send(productoRandom);
-// });
+//delete de producto x id
+routerProductos.delete("/productos/:id", (req, res) => {
+  const id = parseInt(req.params.id);
+  producto = productos.filter((producto) => producto.id != id);
+  res.send(producto);
+});
 
 //Server
 const PORT = 8080;
